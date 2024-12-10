@@ -1,0 +1,30 @@
+﻿@model YourViewModel
+@{
+    string currentDirectoryId = ViewData["DirectoryId"] as string;
+    async Task RenderDirectory(Directory directory)
+    {
+        var isShow = currentDirectoryId != null && LinqExt.Tree.IsDescendant(directory, x => x.Children, x => x.Id == currentDirectoryId);
+        <div class="accordion-item">
+            <a asp-action="@nameof(DirectoryController.Index)" asp-route-id="@directory.Id" class="accordion-button @(isShow?"":"collapsed")">
+                @directory.Name
+            </a>
+            <div id="collapse-@directory.Id" class="accordion-collapse collapse @(isShow? "show":"")">
+                <div class="accordion-body">
+                    @if (directory.Children != null && directory.Children.Any())
+                    {
+                        <div class="accordion accordion-flush">
+                            @foreach (var child in directory.Children)
+                            {
+                                RenderDirectory(child);
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p>No further subdirectories.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+}
